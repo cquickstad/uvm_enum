@@ -52,7 +52,7 @@ Additionally, using SystemVerilog enums tends to lead to several code smells:
 These problems reveal that, in many use cases, enums are a software design anti-pattern. Verification engineers that use enums are often not using the best tool for the job.
 
 ### Solution
-All of these problems can be overcome by using objects instead of enums.  However, most digital logic verification engineers find it difficult give up the advantages that come built-in with SystemVerilog's enums. Furthermore, they often lack the time or skill to develop the object-oriented solution and end up developing code that is hard to maintain and difficult to reuse.
+All of these problems can be overcome by using objects instead of enums.  However, most digital logic verification engineers find it difficult to give up the advantages that come built-in with SystemVerilog's enums. Furthermore, they often lack the time or skill to develop the object-oriented solution and end up developing code that is hard to maintain and difficult to reuse.
 
 **uvm_enum** is the library that provides the solution.  It...
 - implements most of the advantages that enums have natively.
