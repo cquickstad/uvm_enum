@@ -81,10 +81,10 @@ import uvm_enum_pkg::*;
 `UVM_ENUM_OBJ_VALUE_DECL(color, green)
 `UVM_ENUM_OBJ_VALUE_DECL(color, blue)
 ```
-The line `` `UVM_ENUM_OBJ_DECL(color, int)`` will declare the following classes:
-- `virtual class color_enum extends uvm_enum#(int, color_enum);` - The abstract base class for the enumerated type.
+The line `` `UVM_ENUM_OBJ_DECL(color)`` will declare the following classes:
+- `virtual class color_enum extends uvm_enum#(int, color_enum);` - The abstract base class for the enumerated type. (Defaults to scalar type `int` when left unspecified.)
 - `class unimplemented_color extends color_enum;` - Implements the 'null object design pattern' for the error case where the user attempts to set an undeclared value.
-- `class color extends uvm_rand_enum#(int, color_enum);` - Implements a randomization wrapper class containing both the scalar value (as `rand`) and a handle to the matching instance of `color_enum`.
+- `class color extends uvm_rand_enum#(int, color_enum);` - Implements a randomization wrapper class containing both the scalar value (as `rand`) and a handle to the matching instance of `color_enum`. Never set the value member directly (it was left public only for random constraint access compatibility.) Only change the value member using `.randomize()` or `.set()`.
 
 The line `` `UVM_ENUM_OBJ_VALUE_DECL(color, blue)`` will declare the following class:
 - `class blue extends color_enum;` - Represents the `blue` enumeration and has a `static int` member named `VALUE` that is set to `2`.
