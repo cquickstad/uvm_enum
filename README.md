@@ -57,7 +57,7 @@ All of these problems can be overcome by using objects instead of enums.  Howeve
 **uvm_enum** is the library that provides the solution.  It...
 - implements most of the advantages that enums have natively.
 - provides macros to declare classes that represent enumerated types with a similar number of lines of code to the native enums.
-- allows methods to be added to the objects so that all of those switch/case statements can be solved with polymorphism and that all of that code scattered around the codebase can be consolidated into an object that encapsulates the concept being abstracted.
+- allows methods to be added to the objects so that all of those switch/case statements can be solved with polymorphism. All of that code scattered around the codebase can be consolidated into an object that encapsulates the concept being abstracted.
 - allows new enum-objects to be easily added. Downstream projects can reuse your code without requiring intrusive changes.
 - allows the existing and familiar UVM Factory to be used to override an old enum-object with a new enum-object.
 
