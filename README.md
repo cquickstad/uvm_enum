@@ -92,7 +92,19 @@ The line `` `UVM_ENUM_OBJ_VALUE_DECL(color, blue)`` will declare the following c
 The `color_enum` abstract base class and `red`, `green`, and `blue` enumeration implementation classes may be used directly. However, where randomization is required, the `color` container class should be used.
 
 ---
-### Randomization/Constraints
+### Randomization
+Instead of
+```
+color c;
+bit success = std::randomize(c) with {c != green;};
+```
+write
+```
+color c = color::type_id::create("c", this);
+bit success = c.randomize() with {value != green::VALUE();};
+```
+---
+### Randomization/Constraints in an Object
 Instead of
 ```
 class item extends uvm_object;
