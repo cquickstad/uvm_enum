@@ -110,12 +110,13 @@ endclass
 // Declare a dummy version of the virtual base class
 // for use as a default type in parameter lists.
 class _uvm_enum_dummy extends uvm_enum#(bit, uvm_object);
-    static SCALAR_TYPE DEFINED_VALUES[$] = {};
-    static SCALAR_TYPE VALUE;
+    static function _scalar_value_q DEFINED_VALUES(); return {}; endfunction
+    static function _scalar_value_q DEFINED_NAMES(); return {}; endfunction
+    static function SCALAR_TYPE VALUE(); return '0; endfunction
     static function _uvm_enum_dummy make(SCALAR_TYPE value, string name=""); return null; endfunction
     `uvm_object_utils(_uvm_enum_dummy)
     function new(string name="_uvm_enum_dummy"); super.new(name); endfunction
-    virtual function SCALAR_TYPE get_value(); return 0; endfunction
+    virtual function SCALAR_TYPE get_value(); return '0; endfunction
     virtual function int get_enum_index(); return 0; endfunction
     virtual function _scalar_value_q get_all_values(); return {}; endfunction
     virtual function _enum_name_q get_all_names(); return {}; endfunction

@@ -28,12 +28,14 @@ class uvm_rand_enum#(type SCALAR_TYPE=bit, type OBJ_TYPE=_uvm_enum_dummy) extend
     rand SCALAR_TYPE value;
     protected OBJ_TYPE object;
 
+    protected static SCALAR_TYPE _DEFINED_VALUES[$];
+
     constraint defined_values_constraint {
         // CAUTION: The SystemVerilog randomization engine will not generate values with
         //          X's or Z's.  If any enum-object value(s) have been defined with X's or
         //          Z's, then this randomization mechanism will not work and must be
         //          supplemented or replaced with some user-provided mechanism.
-        value inside {OBJ_TYPE::DEFINED_VALUES};
+        value inside {_DEFINED_VALUES};
     }
 
     `uvm_object_param_utils_begin(uvm_rand_enum#(SCALAR_TYPE, OBJ_TYPE))
@@ -54,6 +56,12 @@ class uvm_rand_enum#(type SCALAR_TYPE=bit, type OBJ_TYPE=_uvm_enum_dummy) extend
     virtual function void set_from_string(string name);
         object = OBJ_TYPE::make_from_name(name);
         this.value = object.get_value();
+    endfunction
+
+    function void pre_randomize();
+        if (_DEFINED_VALUES.size() == 0) begin
+            _DEFINED_VALUES = OBJ_TYPE::DEFINED_VALUES();
+        end
     endfunction
 
     function void post_randomize();

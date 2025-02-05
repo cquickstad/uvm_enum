@@ -87,7 +87,7 @@ The line `` `UVM_ENUM_OBJ_DECL(color)`` will declare the following classes:
 - `class color extends uvm_rand_enum#(int, color_enum);` - Implements a randomization wrapper class containing both the scalar value (as `rand`) and a handle to the matching instance of `color_enum`. Never set the value member directly (it was left public only for random constraint access compatibility.) Only change the value member using `.randomize()` or `.set()`.
 
 The line `` `UVM_ENUM_OBJ_VALUE_DECL(color, blue)`` will declare the following class:
-- `class blue extends color_enum;` - Represents the `blue` enumeration and has a `static int` member named `VALUE` that is set to `2`.
+- `class blue extends color_enum;` - Represents the `blue` enumeration and has a scalar value of `2` that can be retrieved with get_value().
 
 The `color_enum` abstract base class and `red`, `green`, and `blue` enumeration implementation classes may be used directly. However, where randomization is required, the `color` container class should be used.
 

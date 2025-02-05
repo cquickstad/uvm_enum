@@ -20,16 +20,22 @@
 `ifndef uvm_enum_obj_registry
 `define uvm_enum_obj_registry(ENUM_NAME) \
         typedef struct {uvm_object_wrapper ow; SCALAR_TYPE value;} _num_obj_registry_t; \
-        static _num_obj_registry_t _registry[$]; \
-        static SCALAR_TYPE DEFINED_VALUES[$]; \
-        static string DEFINED_NAMES[$]; \
+        protected static _num_obj_registry_t _registry[$]; \
+        protected static SCALAR_TYPE _DEFINED_VALUES[$]; \
+        protected static string _DEFINED_NAMES[$]; \
+        static function _scalar_value_q DEFINED_VALUES(); \
+            return _DEFINED_VALUES; \
+        endfunction \
+        static function _enum_name_q DEFINED_NAMES(); \
+            return _DEFINED_NAMES; \
+        endfunction \
         virtual function _scalar_value_q get_all_values(); \
-            return DEFINED_VALUES; \
+            return _DEFINED_VALUES; \
         endfunction \
         virtual function _enum_name_q get_all_names(); \
-            return DEFINED_NAMES; \
+            return _DEFINED_NAMES; \
         endfunction \
-        static function int _register_enum(SCALAR_TYPE value, uvm_object_wrapper ow); \
+        protected static function int _register_enum(SCALAR_TYPE value, uvm_object_wrapper ow); \
             _num_obj_registry_t r = _registry_lookup(value); \
             if (r.ow != null) begin \
                 $fatal(1, $sformatf("Cannot create an enum object for value 'b%0b because it already exists for `%0s`!", \
@@ -39,12 +45,12 @@
             r.value = value; \
             r.ow = ow; \
             _registry.push_back(r); \
-            _register_enum = DEFINED_VALUES.size(); \
-            DEFINED_VALUES.push_back(value); \
-            DEFINED_NAMES.push_back(ow.get_type_name()) ;\
+            _register_enum = _DEFINED_VALUES.size(); \
+            _DEFINED_VALUES.push_back(value); \
+            _DEFINED_NAMES.push_back(ow.get_type_name()) ;\
         endfunction \
-        static function bit _append_name(string name); \
-            DEFINED_NAMES.push_back(name); \
+        protected static function bit _append_name(string name); \
+            _DEFINED_NAMES.push_back(name); \
         endfunction \
         static function this_enum_obj_type make(SCALAR_TYPE value, string uvm_object_name=""); \
             uvm_factory f = uvm_factory::get(); \
@@ -57,22 +63,22 @@
         endfunction \
         static function this_enum_obj_type make_from_name(string name); \
             uvm_factory f = uvm_factory::get(); \
-            uvm_object o = (name inside {DEFINED_NAMES}) ? f.create_object_by_name(name) : null; \
-            if (o == null) return _make_unimplemented_value_null_obj(_get_next_unused_value()); \
+            uvm_object o = (name inside {_DEFINED_NAMES}) ? f.create_object_by_name(name) : null; \
+            if (o == null) return _make_unimplemented_value_null_obj(get_next_unused_value()); \
             if (!$cast(make_from_name, o)) `uvm_fatal({`"ENUM_NAME`", "_CAST"}, $sformatf("Cast failed for object created for name '%0s'", name)) \
             if (make_from_name == null) `uvm_fatal({`"ENUM_NAME`", "_MAKE"}, $sformatf("Failed to make an object for value '%0s'", name)) \
         endfunction \
-        static function unimplemented_``ENUM_NAME`` _make_unimplemented_value_null_obj(SCALAR_TYPE value); \
+        protected static function unimplemented_``ENUM_NAME`` _make_unimplemented_value_null_obj(SCALAR_TYPE value); \
             _make_unimplemented_value_null_obj = unimplemented_``ENUM_NAME``::type_id::create({"unimplemented_", `"ENUM_NAME`"}); \
             _make_unimplemented_value_null_obj.value = value; \
         endfunction \
-        static function _num_obj_registry_t _registry_lookup(SCALAR_TYPE value); \
+        protected static function _num_obj_registry_t _registry_lookup(SCALAR_TYPE value); \
             _num_obj_registry_t q[$] = _registry.find_first() with (item.value === value); \
             foreach (q[i]) return q[i]; \
             _registry_lookup.ow = null; \
         endfunction \
-        static function SCALAR_TYPE _get_next_unused_value(); \
-            SCALAR_TYPE q[$] = DEFINED_VALUES.max(); \
+        static function SCALAR_TYPE get_next_unused_value(); \
+            SCALAR_TYPE q[$] = _DEFINED_VALUES.max(); \
             foreach (q[i]) return q[i] + 1; \
             return '0; \
         endfunction \
@@ -126,11 +132,17 @@
 
 
 `ifndef UVM_ENUM_OBJ_VALUE_DECL
-`define UVM_ENUM_OBJ_VALUE_DECL(ENUM_TYPE_NAME, ENUM_VALUE_NAME, ENUM_VALUE=_get_next_unused_value(), ENUM_CLASS_BODY=) \
+`define UVM_ENUM_OBJ_VALUE_DECL(ENUM_TYPE_NAME, ENUM_VALUE_NAME, ENUM_VALUE=get_next_unused_value(), ENUM_CLASS_BODY=) \
     class ENUM_VALUE_NAME extends ``ENUM_TYPE_NAME``_enum; \
         `uvm_object_utils(ENUM_VALUE_NAME) \
-        static SCALAR_TYPE VALUE = ENUM_VALUE; \
-        static int DEFINED_VALUE_INDEX = _register_enum(.value(ENUM_VALUE),.ow(ENUM_VALUE_NAME::get_type())); \
+        protected static SCALAR_TYPE _VALUE = ENUM_VALUE; \
+        protected static int _DEFINED_VALUE_INDEX = _register_enum(.value(ENUM_VALUE),.ow(ENUM_VALUE_NAME::get_type())); \
+        static function SCALAR_TYPE VALUE(); \
+            return _VALUE; \
+        endfunction \
+        static function int DEFINED_VALUE_INDEX(); \
+            return _DEFINED_VALUE_INDEX; \
+        endfunction \
         function new(string name=`"ENUM_VALUE_NAME`"); \
             super.new(name); \
         endfunction \
@@ -138,10 +150,10 @@
             return 1; \
         endfunction \
         virtual function SCALAR_TYPE get_value(); \
-            return VALUE; \
+            return _VALUE; \
         endfunction \
         virtual function int get_enum_index(); \
-            return DEFINED_VALUE_INDEX; \
+            return _DEFINED_VALUE_INDEX; \
         endfunction \
         ENUM_CLASS_BODY \
     endclass
@@ -151,7 +163,7 @@
 `ifndef UVM_ENUM_OBJ_VALUE_OVERRIDE
 `define UVM_ENUM_OBJ_VALUE_OVERRIDE(PARENT_ENUM_VALUE_NAME, CHILD_ENUM_VALUE_NAME, ENUM_CLASS_BODY=) \
     class CHILD_ENUM_VALUE_NAME extends PARENT_ENUM_VALUE_NAME; \
-        static bit __only_side_effect_needed = _append_name(`"CHILD_ENUM_VALUE_NAME`"); \
+        protected static bit __only_side_effect_needed = _append_name(`"CHILD_ENUM_VALUE_NAME`"); \
         `uvm_object_utils(CHILD_ENUM_VALUE_NAME) \
         function new(string name=`"CHILD_ENUM_VALUE_NAME`"); \
             super.new(name); \

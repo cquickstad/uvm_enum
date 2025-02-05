@@ -21,7 +21,7 @@ package four_state_pkg;
 
     `UVM_ENUM_OBJ_DECL(four_state, logic, ,
         function void post_randomize();
-            value = OBJ_TYPE::DEFINED_VALUES[$urandom_range(OBJ_TYPE::DEFINED_VALUES.size() - 1, 0)];
+            value = _DEFINED_VALUES[$urandom_range(_DEFINED_VALUES.size() - 1, 0)];
             object = OBJ_TYPE::make(value);
         endfunction
     )
