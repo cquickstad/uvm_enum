@@ -185,6 +185,34 @@ endpackage
 `END_RUN_PHASE_TEST
 
 
+`RUN_PHASE_TEST(comparing_colors_test)
+    color_pkg::color_enum a = color_pkg::green::type_id::create("a", this);
+    color_pkg::color_enum b = color_pkg::green::type_id::create("b", this);
+    color_pkg::color_enum c = color_pkg::blue::type_id::create("c", this);
+
+    color_pkg::color x = color_pkg::color::type_id::create("x", this);
+    color_pkg::color y = color_pkg::color::type_id::create("y", this);
+    color_pkg::color z = color_pkg::color::type_id::create("z", this);
+
+    // Standard uvm_object calls should work
+    `ASSERT_TRUE(a.compare(b))
+    `ASSERT_TRUE(b.compare(a))
+
+    `ASSERT_FALSE(b.compare(c))
+    `ASSERT_FALSE(c.compare(a))
+
+    x.set(color_pkg::green::VALUE());
+    y.set(color_pkg::green::VALUE());
+    z.set(color_pkg::blue::VALUE());
+
+    `ASSERT_TRUE(x.compare(y))
+    `ASSERT_TRUE(y.compare(x))
+
+    `ASSERT_FALSE(y.compare(z))
+    `ASSERT_FALSE(z.compare(x))
+`END_RUN_PHASE_TEST
+
+
 `RUN_PHASE_TEST(directly_assigning_value_results_in_fatal)
     color_pkg::color c;
 

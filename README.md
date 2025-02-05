@@ -177,6 +177,39 @@ color_enum c = color_enum::make_from_name("blue");
 bit success = c.is_valid();
 ```
 ---
+### Comparing enums
+Instead of
+```
+color a = green;
+color b = green;
+color c = blue;
+
+assert(a == b);
+assert(a != c);
+```
+write
+```
+color a = color::type_id::create("a");
+color b = color::type_id::create("b");
+color c = color::type_id::create("c");
+
+a.set(green::VALUE());
+b.set(green::VALUE());
+c.set(blue::VALUE());
+
+assert(a.compare(b));
+assert(!a.compare(c));
+```
+or
+```
+color_enum a = color_enum::make(green::VALUE(), "a");
+color_enum b = color_enum::make(green::VALUE(), "b");
+color_enum c = color_enum::make(blue::VALUE(), "c");
+
+assert(a.compare(b));
+assert(!a.compare(c));
+```
+---
 ### Built-In Enum Methods
 Instead of
 ```
