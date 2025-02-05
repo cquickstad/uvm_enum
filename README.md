@@ -158,6 +158,25 @@ int i = 2;
 color_enum c = color_enum::make(i);
 ```
 ---
+### Converting a String to the Enumeration
+Instead of
+```
+color c;
+bit success = uvm_enum_wrapper#(color)::from_name("blue", c);
+```
+write
+```
+color c = color::type_id::create("c");
+bit success;
+c.set_from_name("blue");
+success = c.is_valid();
+```
+or
+```
+color_enum c = color_enum::make_from_name("blue");
+bit success = c.is_valid();
+```
+---
 ### Built-In Enum Methods
 Instead of
 ```

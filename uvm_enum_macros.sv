@@ -22,8 +22,12 @@
         typedef struct {uvm_object_wrapper ow; SCALAR_TYPE value;} _num_obj_registry_t; \
         static _num_obj_registry_t _registry[$]; \
         static SCALAR_TYPE DEFINED_VALUES[$]; \
+        static string DEFINED_NAMES[$]; \
         virtual function _scalar_value_q get_all_values(); \
             return DEFINED_VALUES; \
+        endfunction \
+        virtual function _enum_name_q get_all_names(); \
+            return DEFINED_NAMES; \
         endfunction \
         static function int _register_enum(SCALAR_TYPE value, uvm_object_wrapper ow); \
             _num_obj_registry_t r = _registry_lookup(value); \
@@ -37,15 +41,26 @@
             _registry.push_back(r); \
             _register_enum = DEFINED_VALUES.size(); \
             DEFINED_VALUES.push_back(value); \
+            DEFINED_NAMES.push_back(ow.get_type_name()) ;\
         endfunction \
-        static function this_enum_obj_type make(SCALAR_TYPE value, string name=""); \
+        static function bit _append_name(string name); \
+            DEFINED_NAMES.push_back(name); \
+        endfunction \
+        static function this_enum_obj_type make(SCALAR_TYPE value, string uvm_object_name=""); \
             uvm_factory f = uvm_factory::get(); \
             _num_obj_registry_t r = _registry_lookup(value); \
-            string n = ((name == "") && (r.ow != null)) ? r.ow.get_type_name() : name; \
+            string n = ((uvm_object_name == "") && (r.ow != null)) ? r.ow.get_type_name() : uvm_object_name; \
             uvm_object o = (r.ow == null) ? null : f.create_object_by_type(r.ow, , n); \
             if (o == null) return _make_unimplemented_value_null_obj(value); \
             if (!$cast(make, o)) `uvm_fatal({`"ENUM_NAME`", "_CAST"}, $sformatf("Cast failed for object created for value 'b%0b", value)) \
             if (make == null) `uvm_fatal({`"ENUM_NAME`", "_MAKE"}, $sformatf("Failed to make an object for value 'b%0b", value)) \
+        endfunction \
+        static function this_enum_obj_type make_from_name(string name); \
+            uvm_factory f = uvm_factory::get(); \
+            uvm_object o = (name inside {DEFINED_NAMES}) ? f.create_object_by_name(name) : null; \
+            if (o == null) return _make_unimplemented_value_null_obj(_get_next_unused_value()); \
+            if (!$cast(make_from_name, o)) `uvm_fatal({`"ENUM_NAME`", "_CAST"}, $sformatf("Cast failed for object created for name '%0s'", name)) \
+            if (make_from_name == null) `uvm_fatal({`"ENUM_NAME`", "_MAKE"}, $sformatf("Failed to make an object for value '%0s'", name)) \
         endfunction \
         static function unimplemented_``ENUM_NAME`` _make_unimplemented_value_null_obj(SCALAR_TYPE value); \
             _make_unimplemented_value_null_obj = unimplemented_``ENUM_NAME``::type_id::create({"unimplemented_", `"ENUM_NAME`"}); \
@@ -85,6 +100,9 @@
         function new(string name={"unimplemented_", `"ENUM_NAME`"}); \
             super.new(name); \
         endfunction \
+        virtual function bit is_valid(); \
+            return 0; \
+        endfunction \
         virtual function SCALAR_TYPE get_value(); \
             return value; \
         endfunction \
@@ -116,6 +134,9 @@
         function new(string name=`"ENUM_VALUE_NAME`"); \
             super.new(name); \
         endfunction \
+        virtual function bit is_valid(); \
+            return 1; \
+        endfunction \
         virtual function SCALAR_TYPE get_value(); \
             return VALUE; \
         endfunction \
@@ -130,8 +151,9 @@
 `ifndef UVM_ENUM_OBJ_VALUE_OVERRIDE
 `define UVM_ENUM_OBJ_VALUE_OVERRIDE(PARENT_ENUM_VALUE_NAME, CHILD_ENUM_VALUE_NAME, ENUM_CLASS_BODY=) \
     class CHILD_ENUM_VALUE_NAME extends PARENT_ENUM_VALUE_NAME; \
+        static bit __only_side_effect_needed = _append_name(`"CHILD_ENUM_VALUE_NAME`"); \
         `uvm_object_utils(CHILD_ENUM_VALUE_NAME) \
-        function new(string name=`"ENUM_VALUE_NAME`"); \
+        function new(string name=`"CHILD_ENUM_VALUE_NAME`"); \
             super.new(name); \
         endfunction \
         ENUM_CLASS_BODY \

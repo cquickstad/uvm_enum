@@ -43,8 +43,16 @@ virtual class uvm_enum#(type SCALAR_TYPE=int, type CHILD_TYPE=uvm_object) extend
     typedef SCALAR_TYPE _scalar_value_q[$];
     pure virtual function _scalar_value_q get_all_values();
 
+    // Returns the entire set of enum names registered for the enumerations of the
+    // type.
+    typedef string _enum_name_q[$];
+    pure virtual function _enum_name_q get_all_names();
+
     // Use the enum object factory to create a new enum object for the associated value
     pure virtual function CHILD_TYPE create_enum(SCALAR_TYPE value);
+
+    // The object is not the unimplemented_thing null object.
+    pure virtual function bit is_valid();
 
 
 
@@ -110,5 +118,7 @@ class _uvm_enum_dummy extends uvm_enum#(bit, uvm_object);
     virtual function SCALAR_TYPE get_value(); return 0; endfunction
     virtual function int get_enum_index(); return 0; endfunction
     virtual function _scalar_value_q get_all_values(); return {}; endfunction
+    virtual function _enum_name_q get_all_names(); return {}; endfunction
     virtual function CHILD_TYPE create_enum(SCALAR_TYPE value); return null; endfunction
+    virtual function bit is_valid(); return 0; endfunction
 endclass

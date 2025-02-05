@@ -51,6 +51,11 @@ class uvm_rand_enum#(type SCALAR_TYPE=bit, type OBJ_TYPE=_uvm_enum_dummy) extend
         object = OBJ_TYPE::make(value);
     endfunction
 
+    virtual function void set_from_string(string name);
+        object = OBJ_TYPE::make_from_name(name);
+        this.value = object.get_value();
+    endfunction
+
     function void post_randomize();
         object = OBJ_TYPE::make(value);
     endfunction
@@ -64,6 +69,20 @@ class uvm_rand_enum#(type SCALAR_TYPE=bit, type OBJ_TYPE=_uvm_enum_dummy) extend
         check_value_object_sync();
         return object.get_enum_index();
     endfunction
+
+    virtual function OBJ_TYPE get_enum();
+        check_value_object_sync();
+        if (!$cast(get_enum, object.clone())) `uvm_fatal("ENUM_OBJECT_CLONE", "Failed to clone enum object")
+    endfunction
+
+    // The object is not the unimplemented_thing null object.
+    virtual function bit is_valid();
+        check_value_object_sync();
+        return object.is_valid();
+    endfunction
+
+
+    // The following are analogous to SystemVerilog's built-in enum methods:
 
     virtual function void first();
         check_value_object_sync();
@@ -99,10 +118,7 @@ class uvm_rand_enum#(type SCALAR_TYPE=bit, type OBJ_TYPE=_uvm_enum_dummy) extend
         return object.get_type_name();
     endfunction
 
-    virtual function OBJ_TYPE get_enum();
-        check_value_object_sync();
-        if (!$cast(get_enum, object.clone())) `uvm_fatal("ENUM_OBJECT_CLONE", "Failed to clone enum object")
-    endfunction
+
 
     protected virtual function void check_value_object_sync();
         if ((object != null) && (value === object.get_value())) return;

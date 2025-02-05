@@ -47,6 +47,13 @@ package color_pkg;
 endpackage
 
 
+`RUN_PHASE_TEST(all_colors_test)
+    color_pkg::color_enum ce = color_pkg::color_enum::make(0);
+    `ASSERT_AP_EQ(ce.get_all_values(), "'{0, 1, 2, 3}")
+    `ASSERT_AP_EQ(ce.get_all_names(), "'{\"red\", \"green\", \"blue\", \"yellow\", \"crimson\"}")
+`END_RUN_PHASE_TEST
+
+
 
 `RUN_PHASE_TEST(random_color_test)
     int color_count[int];
@@ -106,8 +113,41 @@ endpackage
 `END_RUN_PHASE_TEST
 
 
+`RUN_PHASE_TEST(color_set_from_string_test)
+    color_pkg::color c = color_pkg::color::type_id::create("c", this);
+
+    c.set_from_string("yellow");
+    `ASSERT_EQ(c.get_value(), color_pkg::yellow::VALUE)
+    `ASSERT_TRUE(c.is_valid())
+
+    c.set_from_string("green");
+    `ASSERT_EQ(c.get_value(), color_pkg::green::VALUE)
+    `ASSERT_TRUE(c.is_valid())
+
+    c.set_from_string("FOO BAR");
+    `ASSERT_FALSE(c.is_valid())
+    `ASSERT_STR_EQ(c.name(), "unimplemented_color")
+    `ASSERT_EQ(c.get_value(), 4)
+`END_RUN_PHASE_TEST
+
+
+`RUN_PHASE_TEST(color_enum_make_by_name_test)
+    color_pkg::color_enum c;
+
+    c = color_pkg::color_enum::make_from_name("blue");
+    `ASSERT_EQ(c.get_value(), color_pkg::blue::VALUE)
+    `ASSERT_TRUE(c.is_valid())
+
+    c = color_pkg::color_enum::make_from_name("FOO BAR");
+    `ASSERT_FALSE(c.is_valid())
+    `ASSERT_STR_EQ(c.name(), "unimplemented_color")
+    `ASSERT_EQ(c.get_value(), 4)
+`END_RUN_PHASE_TEST
+
+
 `RUN_PHASE_TEST(override_color_test)
     color_pkg::color c;
+    color_pkg::color_enum ce;
     color_pkg::red my_red;
 
     // The standard UVM Factory is used to override an enum value
@@ -116,9 +156,19 @@ endpackage
     c = color_pkg::color::type_id::create("c", this);
     c.set(color_pkg::red::VALUE);
     `ASSERT_STR_EQ(c.name(), "crimson")
+    c.set_from_string("red");
+    `ASSERT_STR_EQ(c.name(), "crimson")
 
     my_red = color_pkg::red::type_id::create("my_red", this);
     `ASSERT_STR_EQ(my_red.name(), "crimson")
+
+    ce = color_pkg::color_enum::make_from_name("red");
+    `ASSERT_STR_EQ(ce.name(), "crimson")
+    `ASSERT_TRUE(ce.is_valid())
+
+    ce = color_pkg::color_enum::make_from_name("crimson");
+    `ASSERT_STR_EQ(ce.name(), "crimson")
+    `ASSERT_TRUE(ce.is_valid())
 `END_RUN_PHASE_TEST
 
 
@@ -126,6 +176,7 @@ endpackage
     // The null object pattern is used to handle the error case
 
     color_pkg::color_enum c = color_pkg::color_enum::make(42); // There is no color 42
+    `ASSERT_FALSE(c.is_valid())
     `ASSERT_STR_EQ(c.name(), "unimplemented_color")
     `ASSERT_EQ(c.get_value(), 42)
 
