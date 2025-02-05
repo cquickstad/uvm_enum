@@ -90,25 +90,25 @@ endpackage
     animal_pkg::animal a = animal_pkg::animal::type_id::create("a", this);
 
     repeat (10) begin
-        `ASSERT_TRUE(a.randomize() with {a.value != animal_pkg::dog::VALUE;})
-        `ASSERT_NE(a.get_value(), animal_pkg::dog::VALUE)
+        `ASSERT_TRUE(a.randomize() with {a.value != animal_pkg::dog::VALUE();})
+        `ASSERT_NE(a.get_value(), animal_pkg::dog::VALUE())
     end
 
-    a.set(animal_pkg::bird::VALUE);
+    a.set(animal_pkg::bird::VALUE());
     `ASSERT_STR_EQ(a.name(), "bird")
-    `ASSERT_STR_EQ(a.get_value(), animal_pkg::bird::VALUE)
+    `ASSERT_STR_EQ(a.get_value(), animal_pkg::bird::VALUE())
     `ASSERT_EQ(a.get_num_legs(), 2)
     `ASSERT_FALSE(a.can_ride())
 
-    a.set(animal_pkg::dog::VALUE);
+    a.set(animal_pkg::dog::VALUE());
     `ASSERT_STR_EQ(a.name(), "dog")
-    `ASSERT_STR_EQ(a.get_value(), animal_pkg::dog::VALUE)
+    `ASSERT_STR_EQ(a.get_value(), animal_pkg::dog::VALUE())
     `ASSERT_EQ(a.get_num_legs(), 4)
     `ASSERT_FALSE(a.can_ride())
 
-    a.set(animal_pkg::horse::VALUE);
+    a.set(animal_pkg::horse::VALUE());
     `ASSERT_STR_EQ(a.name(), "horse")
-    `ASSERT_STR_EQ(a.get_value(), animal_pkg::horse::VALUE)
+    `ASSERT_STR_EQ(a.get_value(), animal_pkg::horse::VALUE())
     `ASSERT_EQ(a.get_num_legs(), 4)
     `ASSERT_TRUE(a.can_ride())
 `END_RUN_PHASE_TEST
@@ -117,10 +117,10 @@ endpackage
 `RUN_PHASE_TEST(animal_override_test)
     animal_pkg::animal a = animal_pkg::animal::type_id::create("a", this);
     set_type_override_by_type(animal_pkg::dog::get_type(), animal_pkg::maimed_dog::get_type());
-    a.set(animal_pkg::dog::VALUE);
+    a.set(animal_pkg::dog::VALUE());
     `ASSERT_STR_EQ(a.name(), "maimed_dog")
-    `ASSERT_STR_EQ(a.get_value(), animal_pkg::maimed_dog::VALUE)
-    `ASSERT_STR_EQ(a.get_value(), animal_pkg::dog::VALUE)
+    `ASSERT_STR_EQ(a.get_value(), animal_pkg::maimed_dog::VALUE())
+    `ASSERT_STR_EQ(a.get_value(), animal_pkg::dog::VALUE())
     `ASSERT_EQ(a.get_num_legs(), 3)
     `ASSERT_FALSE(a.can_ride())
 `END_RUN_PHASE_TEST

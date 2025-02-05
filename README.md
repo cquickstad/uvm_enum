@@ -107,7 +107,7 @@ write
 class item extends uvm_object;
     ...
     rand color c;
-    constraint color_c {c.value != green::VALUE;}
+    constraint color_c {c.value != green::VALUE();}
     ...
     function new(string name="item");
         super.new(name);
@@ -127,7 +127,7 @@ int i = int'(c);
 write
 ```
 color c = color::type_id::create("c");
-c.set(blue::VALUE);
+c.set(blue::VALUE());
 int i = c.get_value();
 ```
 or
@@ -137,7 +137,7 @@ int i = b.get_value();
 ```
 or simply
 ```
-int i = blue::VALUE;
+int i = blue::VALUE();
 ```
 ---
 ### Converting a Scalar to the Enumeration
@@ -187,7 +187,7 @@ $display("%0s is after green", c.name());
 write
 ```
 color c = color::type_id::create("c");
-c.set(green::VALUE);
+c.set(green::VALUE());
 c.next();
 $display("%0s is after green", c.name());
 ```
