@@ -83,8 +83,8 @@ import uvm_enum_pkg::*;
 ```
 The line `` `UVM_ENUM_OBJ_DECL(color)`` will declare the following classes:
 - `virtual class color_enum extends uvm_enum#(int, color_enum);` - The abstract base class for the enumerated type. (Defaults to scalar type `int` when left unspecified.)
-- `class unimplemented_color extends color_enum;` - Implements the 'null object design pattern' for the error case where the user attempts to set an undeclared value.
-- `class color extends uvm_rand_enum#(int, color_enum);` - Implements a randomization wrapper class containing both the scalar value (as `rand`) and a handle to the matching instance of `color_enum`. Never set the value member directly (it was left public only for random constraint access compatibility.) Only change the value member using `.randomize()` or `.set()`.
+- `class unimplemented_color extends color_enum;` - Implements the 'null object design pattern' for the error case where the user attempts to set an undeclared value. This object will return `0` (false) when the `is_valid()` method is called. Calls to `next()` and `prev()` will result in a fatal error.
+- `class color extends uvm_rand_enum#(int, color_enum);` - Implements a randomization wrapper class containing both the scalar value (as `rand`) and a handle to the matching instance of `color_enum`. This is needed because SystemVerilog's randomization engine only works on built-in types and it cannot create or choose a class instance, nor can constraints be written to do so.  By the way, never set this object's value member directly (it was left public only for random constraint access compatibility.) Only change the value member using `.randomize()` or `.set()`.
 
 The line `` `UVM_ENUM_OBJ_VALUE_DECL(color, blue)`` will declare the following class:
 - `class blue extends color_enum;` - Represents the `blue` enumeration and has a scalar value of `2` that can be retrieved with get_value().
@@ -117,6 +117,8 @@ class item extends uvm_object;
     ...
 endclass
 ```
+_(Remember that if a class handle members are declared as `rand`, and are not `null` when `.randomize()` is called on the class, SystemVerilog will follow the handles and also call `.randomize()` on those classes.  In other words, calling `item.randomize()` in the above example, will also cause `item.c.randomize()` to be called.)_
+
 ---
 ### Accessing the Scalar Representation
 Instead of
@@ -235,9 +237,9 @@ $display("%0s is after green", c.name());
 Instead of
 ```
 typedef enum logic [3:0] {
-    bird = 0,
-    horse = 1,
-    dog = 2
+    bird = 4'b0000,
+    horse = 4'b0001,
+    dog = 4'b0010
 } animal;
 
 function int get_num_legs(animal a);
@@ -297,7 +299,7 @@ write
     endfunction
 )
 
-`UVM_ENUM_OBJ_VALUE_DECL(animal, bird, 0,
+`UVM_ENUM_OBJ_VALUE_DECL(animal, bird, 4'b0000,
     virtual function int get_num_legs();
         return 2;
     endfunction
@@ -306,7 +308,7 @@ write
     endfunction
 )
 
-`UVM_ENUM_OBJ_VALUE_DECL(animal, horse, 1,
+`UVM_ENUM_OBJ_VALUE_DECL(animal, horse, 4'b0001,
     virtual function int get_num_legs();
         return 4;
     endfunction
@@ -315,7 +317,7 @@ write
     endfunction
 )
 
-`UVM_ENUM_OBJ_VALUE_DECL(animal, dog, 2,
+`UVM_ENUM_OBJ_VALUE_DECL(animal, dog, 4'b0010,
     virtual function int get_num_legs();
         return 4;
     endfunction
@@ -345,7 +347,7 @@ endfunction
 ```
 To illustrate how extendable the class-based solution is, more animals can be added simply by declaring them. The original code need not be touched.  It just works.
 ```
-`UVM_ENUM_OBJ_VALUE_DECL(animal, deer, 3,
+`UVM_ENUM_OBJ_VALUE_DECL(animal, deer, 4'b0011,
     virtual function int get_num_legs();
         return 4;
     endfunction
@@ -354,7 +356,7 @@ To illustrate how extendable the class-based solution is, more animals can be ad
     endfunction
 )
 
-`UVM_ENUM_OBJ_VALUE_DECL(animal, elephant, 4,
+`UVM_ENUM_OBJ_VALUE_DECL(animal, elephant, 4'b0100,
     virtual function int get_num_legs();
         return 4;
     endfunction
