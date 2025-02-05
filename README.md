@@ -346,6 +346,8 @@ function void explain_animal(animal a);
 endfunction
 ```
 To illustrate how extendable the class-based solution is, more animals can be added simply by declaring them. The original code need not be touched.  It just works.
+
+This illustrates the _dependency inversion principle_ (the D in SOLID). Both `explain_animal()` and the individual animals depend on the `animal_enum` abstract base class.
 ```
 `UVM_ENUM_OBJ_VALUE_DECL(animal, deer, 4'b0011,
     virtual function int get_num_legs();
