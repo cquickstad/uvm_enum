@@ -87,7 +87,7 @@ The line `` `UVM_ENUM_OBJ_DECL(color)`` will declare the following classes:
 - `class color extends uvm_rand_enum#(int, color_enum);` - Implements a randomization wrapper class containing both the scalar value (as `rand`) and a handle to the matching instance of `color_enum`. This class is needed because SystemVerilog's randomization engine only works on built-in types and it cannot create or choose a class instance, nor can constraints be written to do so.  By the way, never set this object's value member directly (it was left public only for random constraint access compatibility). Only change the value member using `.randomize()` or `.set()`.
 
 The line `` `UVM_ENUM_OBJ_VALUE_DECL(color, blue)`` will declare the following class:
-- `class blue extends color_enum;` - Represents the `blue` enumeration and has a scalar value of `2` that can be retrieved with get_value().
+- `class blue extends color_enum;` - Represents the `blue` enumeration and has a scalar value of `2` that can be retrieved with the `get_value()` method or the `blue::VALUE()` static method.
 
 The `color_enum` abstract base class and `red`, `green`, and `blue` enumeration implementation classes may be used directly. However, where randomization is required, the `color` container class should be used.
 
