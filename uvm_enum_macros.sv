@@ -82,6 +82,16 @@
             foreach (q[i]) return q[i] + 1; \
             return '0; \
         endfunction \
+        static function string get_longest_name(); \
+            string q[$] = _DEFINED_NAMES.max() with (item.len()); \
+            foreach (q[i]) return q[i]; \
+            return ""; \
+        endfunction \
+        static function string get_shortest_name(); \
+            string q[$] = _DEFINED_NAMES.min() with (item.len()); \
+            foreach (q[i]) return q[i]; \
+            return ""; \
+        endfunction \
         virtual function CHILD_TYPE create_enum(SCALAR_TYPE value); \
             return make(value); \
         endfunction

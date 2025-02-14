@@ -86,6 +86,14 @@ package animal_pkg;
 endpackage
 
 
+`RUN_PHASE_TEST(animal_name_lengths_test)
+    // Knowing the longest and shortest names is useful for logging
+    // information in tables.
+    `ASSERT_STR_EQ(animal_pkg::animal_enum::get_longest_name(), "maimed_dog")
+    `ASSERT_STR_EQ(animal_pkg::animal_enum::get_shortest_name(), "dog")
+`END_RUN_PHASE_TEST
+
+
 `RUN_PHASE_TEST(animal_test)
     animal_pkg::animal a = animal_pkg::animal::type_id::create("a", this);
 

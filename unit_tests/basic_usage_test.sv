@@ -54,6 +54,14 @@ endpackage
 `END_RUN_PHASE_TEST
 
 
+`RUN_PHASE_TEST(color_name_lengths_test)
+    // Knowing the longest and shortest names is useful for logging
+    // information in tables.
+    `ASSERT_STR_EQ(color_pkg::color_enum::get_longest_name(), "crimson")
+    `ASSERT_STR_EQ(color_pkg::color_enum::get_shortest_name(), "red")
+`END_RUN_PHASE_TEST
+
+
 
 `RUN_PHASE_TEST(random_color_test)
     int color_count[int];
