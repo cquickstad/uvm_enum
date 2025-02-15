@@ -55,10 +55,21 @@ endpackage
 
 
 `RUN_PHASE_TEST(color_name_lengths_test)
-    // Knowing the longest and shortest names is useful for logging
-    // information in tables.
+    // Knowing the longest and shortest name string lengths is useful for output formatting, such as tables.
     `ASSERT_STR_EQ(color_pkg::color_enum::get_longest_name(), "crimson")
     `ASSERT_STR_EQ(color_pkg::color_enum::get_shortest_name(), "red")
+`END_RUN_PHASE_TEST
+
+
+`RUN_PHASE_TEST(color_max_min_value_test)
+    color_pkg::color_enum max, min;
+    // Knowing the largest and smallest values might have general usefulness.
+    `ASSERT_EQ(color_pkg::color_enum::get_max_value(), 3)
+    `ASSERT_EQ(color_pkg::color_enum::get_min_value(), 0)
+    min = color_pkg::color_enum::make_min_value();
+    max = color_pkg::color_enum::make_max_value();
+    `ASSERT_STR_EQ(min.name(), "red")
+    `ASSERT_STR_EQ(max.name(), "yellow")
 `END_RUN_PHASE_TEST
 
 

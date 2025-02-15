@@ -77,10 +77,30 @@
             foreach (q[i]) return q[i]; \
             _registry_lookup.ow = null; \
         endfunction \
-        static function SCALAR_TYPE get_next_unused_value(); \
+        static function SCALAR_TYPE get_max_value(); \
             SCALAR_TYPE q[$] = _DEFINED_VALUES.max(); \
-            foreach (q[i]) return q[i] + 1; \
-            return '0; \
+            foreach (q[i]) return q[i]; \
+            $stacktrace; \
+            `uvm_fatal({`"ENUM_NAME`", "_MAX_VALUE"}, \
+                $sformatf("Failed to find max value for %0s among values %p", \
+                    `"ENUM_NAME`", _DEFINED_VALUES)) \
+        endfunction \
+        static function SCALAR_TYPE get_min_value(); \
+            SCALAR_TYPE q[$] = _DEFINED_VALUES.min(); \
+            foreach (q[i]) return q[i]; \
+            $stacktrace; \
+            `uvm_fatal({`"ENUM_NAME`", "_MIN_VALUE"}, \
+                $sformatf("Failed to find min value for %0s among values %p", \
+                    `"ENUM_NAME`", _DEFINED_VALUES)) \
+        endfunction \
+        static function this_enum_obj_type make_max_value(string uvm_object_name=""); \
+            return make(get_max_value(), uvm_object_name); \
+        endfunction \
+        static function this_enum_obj_type make_min_value(string uvm_object_name=""); \
+            return make(get_min_value(), uvm_object_name); \
+        endfunction \
+        static function SCALAR_TYPE get_next_unused_value(); \
+            return (_DEFINED_VALUES.size() == 0) ? '0 : get_max_value() + SCALAR_TYPE'(1); \
         endfunction \
         static function string get_longest_name(); \
             string q[$] = _DEFINED_NAMES.max() with (item.len()); \
