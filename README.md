@@ -224,6 +224,52 @@ assert(a.compare(b));
 assert(!a.compare(c));
 ```
 ---
+### Testing Set Membership
+Instead of
+```
+color a = green;
+assert(a inside {green, blue});
+
+a = red;
+assert(!(a inside {green, blue}));
+```
+write
+```
+color a = color::type_id::create("a");
+color b = color::type_id::create("b");
+color c = color::type_id::create("c");
+
+b.set(green::VALUE());
+c.set(blue::VALUE());
+
+a.set(green::VALUE());
+assert(a.is_inside({b, c}));
+
+a.set(red::VALUE());
+assert(!a.is_inside({b, c}));
+```
+or
+```
+color a = color::type_id::create("a");
+
+a.set(green::VALUE());
+assert(a.is_inside_values({green::VALUE(), blue::VALUE()}));
+
+a.set(red::VALUE());
+assert(!a.is_inside_values({green::VALUE(), blue::VALUE()}));
+```
+or
+```
+assert(green::INSIDE({green::type_id::create(), blue::type_id::create()}))
+assert(green::INSIDE_VALUES({green::VALUE(), blue::VALUE()}))
+```
+or
+```
+color_enum a = color_enum::make(green::VALUE(), "a");
+assert(a.is_inside({green::type_id::create(), blue::type_id::create()}))
+assert(a.is_inside_values({green::VALUE(), blue::VALUE()}))
+```
+---
 ### Built-In Enum Methods
 Instead of
 ```

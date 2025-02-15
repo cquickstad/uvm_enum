@@ -213,6 +213,9 @@ endpackage
     color_pkg::color y = color_pkg::color::type_id::create("y", this);
     color_pkg::color z = color_pkg::color::type_id::create("z", this);
 
+    uvm_pkg::uvm_comparer p = uvm_pkg::uvm_comparer::init();
+    p.show_max = 0; // Turn off that aggravating 'reporter [MISCMP] Miscompare ...' message from UVM.
+
     // Standard uvm_object calls should work
     `ASSERT_TRUE(a.compare(b))
     `ASSERT_TRUE(b.compare(a))
@@ -281,4 +284,99 @@ endpackage
     c.value = color_pkg::blue::VALUE();
     `EXPECT_FATAL_ID("ENUM_OBJECT_MISUSED")
     void'(c.get_enum());
+`END_RUN_PHASE_TEST
+
+
+`RUN_PHASE_TEST(color_set_membership_test)
+    color_pkg::color c = color_pkg::color::type_id::create("c", this);
+    color_pkg::color r = color_pkg::color::type_id::create("r", this);
+    color_pkg::color g = color_pkg::color::type_id::create("g", this);
+    color_pkg::color b = color_pkg::color::type_id::create("b", this);
+    color_pkg::color rgb[] = {r, g, b};
+    int rgb_values[] = {color_pkg::red::VALUE(),
+                        color_pkg::green::VALUE(),
+                        color_pkg::blue::VALUE()};
+    uvm_pkg::uvm_comparer p = uvm_pkg::uvm_comparer::init();
+    p.show_max = 0; // Turn off that aggravating 'reporter [MISCMP] Miscompare ...' message from UVM.
+
+    r.set(color_pkg::red::VALUE());
+    g.set(color_pkg::green::VALUE());
+    b.set(color_pkg::blue::VALUE());
+
+    c.set(color_pkg::red::VALUE());
+    `ASSERT_TRUE(c.is_inside(rgb))
+    `ASSERT_TRUE(c.is_inside({r, g, b})) // This works too
+
+    c.set(color_pkg::green::VALUE());
+    `ASSERT_TRUE(c.is_inside(rgb))
+
+    c.set(color_pkg::blue::VALUE());
+    `ASSERT_TRUE(c.is_inside(rgb))
+
+    c.set(color_pkg::yellow::VALUE());
+    `ASSERT_FALSE(c.is_inside(rgb))
+
+    c.set(color_pkg::red::VALUE());
+    `ASSERT_TRUE(c.is_inside_values(rgb_values))
+    `ASSERT_TRUE(c.is_inside_values({color_pkg::red::VALUE(), // This works too
+                                    color_pkg::green::VALUE(),
+                                    color_pkg::blue::VALUE()}))
+
+    c.set(color_pkg::green::VALUE());
+    `ASSERT_TRUE(c.is_inside_values(rgb_values))
+
+    c.set(color_pkg::blue::VALUE());
+    `ASSERT_TRUE(c.is_inside_values(rgb_values))
+
+    c.set(color_pkg::yellow::VALUE());
+    `ASSERT_FALSE(c.is_inside_values(rgb_values))
+`END_RUN_PHASE_TEST
+
+
+`RUN_PHASE_TEST(color_enum_set_membership_test)
+    color_pkg::color_enum c;
+    color_pkg::color_enum r = color_pkg::red::type_id::create("r", this);
+    color_pkg::color_enum g = color_pkg::green::type_id::create("g", this);
+    color_pkg::color_enum b = color_pkg::blue::type_id::create("b", this);
+    color_pkg::color_enum rgb[] = {r, g, b};
+    int rgb_values[] = {color_pkg::red::VALUE(),
+                        color_pkg::green::VALUE(),
+                        color_pkg::blue::VALUE()};
+    uvm_pkg::uvm_comparer p = uvm_pkg::uvm_comparer::init();
+    p.show_max = 0; // Turn off that aggravating 'reporter [MISCMP] Miscompare ...' message from UVM.
+
+    `ASSERT_TRUE(color_pkg::red::INSIDE(rgb))
+    `ASSERT_TRUE(color_pkg::green::INSIDE(rgb))
+    `ASSERT_TRUE(color_pkg::blue::INSIDE(rgb))
+    `ASSERT_FALSE(color_pkg::yellow::INSIDE(rgb))
+
+    `ASSERT_TRUE(color_pkg::red::INSIDE_VALUES(rgb_values))
+    `ASSERT_TRUE(color_pkg::green::INSIDE_VALUES(rgb_values))
+    `ASSERT_TRUE(color_pkg::blue::INSIDE_VALUES(rgb_values))
+    `ASSERT_FALSE(color_pkg::yellow::INSIDE_VALUES(rgb_values))
+
+    c = color_pkg::red::type_id::create("c", this);
+    `ASSERT_TRUE(c.is_inside(rgb))
+    `ASSERT_TRUE(c.is_inside({color_pkg::red::type_id::create(), // This works too
+                              color_pkg::green::type_id::create(),
+                              color_pkg::blue::type_id::create()}))
+
+    c = color_pkg::green::type_id::create("c", this);
+    `ASSERT_TRUE(c.is_inside(rgb))
+    c = color_pkg::blue::type_id::create("c", this);
+    `ASSERT_TRUE(c.is_inside(rgb))
+    c = color_pkg::yellow::type_id::create("c", this);
+    `ASSERT_FALSE(c.is_inside(rgb))
+
+    c = color_pkg::red::type_id::create("c", this);
+    `ASSERT_TRUE(c.is_inside_values(rgb_values))
+    `ASSERT_TRUE(c.is_inside_values({color_pkg::red::VALUE(),
+                                     color_pkg::green::VALUE(),
+                                     color_pkg::blue::VALUE()}))
+    c = color_pkg::green::type_id::create("c", this);
+    `ASSERT_TRUE(c.is_inside_values(rgb_values))
+    c = color_pkg::blue::type_id::create("c", this);
+    `ASSERT_TRUE(c.is_inside_values(rgb_values))
+    c = color_pkg::yellow::type_id::create("c", this);
+    `ASSERT_FALSE(c.is_inside_values(rgb_values))
 `END_RUN_PHASE_TEST

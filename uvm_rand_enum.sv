@@ -23,10 +23,12 @@
 // will wrap the uvm_enum object and pair it with a `rand` scalar type.  The randomization
 // engine can then randomly select the scalar value, then the associated uvm_enum can be
 // created for that scalar value in post_randomize().
-class uvm_rand_enum#(type SCALAR_TYPE=bit, type OBJ_TYPE=_uvm_enum_dummy) extends uvm_object;
+class uvm_rand_enum#(type SCALAR_TYPE=bit,
+                     type ENUM_OBJ_TYPE=_uvm_enum_dummy,
+                     type THIS_OBJ_TYPE=uvm_rand_enum) extends uvm_object;
 
     rand SCALAR_TYPE value;
-    protected OBJ_TYPE object;
+    protected ENUM_OBJ_TYPE object;
 
     protected static SCALAR_TYPE _DEFINED_VALUES[$];
 
@@ -38,34 +40,34 @@ class uvm_rand_enum#(type SCALAR_TYPE=bit, type OBJ_TYPE=_uvm_enum_dummy) extend
         value inside {_DEFINED_VALUES};
     }
 
-    `uvm_object_param_utils_begin(uvm_rand_enum#(SCALAR_TYPE, OBJ_TYPE))
+    `uvm_object_param_utils_begin(uvm_rand_enum#(SCALAR_TYPE, ENUM_OBJ_TYPE, THIS_OBJ_TYPE))
         `uvm_field_int(value, UVM_ALL_ON)
         `uvm_field_object(object, UVM_ALL_ON)
     `uvm_object_utils_end
 
     function new(string name="uvm_rand_enum");
         super.new(name);
-        object = OBJ_TYPE::make(value);
+        object = ENUM_OBJ_TYPE::make(value);
     endfunction
 
     virtual function void set(SCALAR_TYPE value);
         this.value = value;
-        object = OBJ_TYPE::make(value);
+        object = ENUM_OBJ_TYPE::make(value);
     endfunction
 
     virtual function void set_from_string(string name);
-        object = OBJ_TYPE::make_from_name(name);
+        object = ENUM_OBJ_TYPE::make_from_name(name);
         this.value = object.get_value();
     endfunction
 
     function void pre_randomize();
         if (_DEFINED_VALUES.size() == 0) begin
-            _DEFINED_VALUES = OBJ_TYPE::DEFINED_VALUES();
+            _DEFINED_VALUES = ENUM_OBJ_TYPE::DEFINED_VALUES();
         end
     endfunction
 
     function void post_randomize();
-        object = OBJ_TYPE::make(value);
+        object = ENUM_OBJ_TYPE::make(value);
     endfunction
 
     virtual function SCALAR_TYPE get_value();
@@ -78,9 +80,25 @@ class uvm_rand_enum#(type SCALAR_TYPE=bit, type OBJ_TYPE=_uvm_enum_dummy) extend
         return object.get_enum_index();
     endfunction
 
-    virtual function OBJ_TYPE get_enum();
+    virtual function ENUM_OBJ_TYPE get_enum();
         check_value_object_sync();
         if (!$cast(get_enum, object.clone())) `uvm_fatal("ENUM_OBJECT_CLONE", "Failed to clone enum object")
+    endfunction
+
+    virtual function bit is_inside(THIS_OBJ_TYPE set[]);
+        THIS_OBJ_TYPE q[$];
+        check_value_object_sync();
+        q = set.find_first() with (this.compare(item));
+        foreach (q[i]) return 1;
+        return 0;
+    endfunction
+
+    virtual function bit is_inside_values(SCALAR_TYPE set[]);
+        SCALAR_TYPE v, q[$];
+        v = get_value();
+        q = set.find_first() with (v === item);
+        foreach (q[i]) return 1;
+        return 0;
     endfunction
 
     // The object is not the unimplemented_thing null object.
