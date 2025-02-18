@@ -19,12 +19,12 @@
 
 `ifndef _uvm_enum_obj_registry
 `define _uvm_enum_obj_registry(ENUM_NAME) \
-        typedef struct {uvm_object_wrapper ow; SCALAR_TYPE value;} _num_obj_registry_t; \
-        protected static _num_obj_registry_t _registry[$]; \
+        typedef struct {uvm_object_wrapper ow; SCALAR_TYPE value;} _enum_registry_t; \
+        protected static _enum_registry_t _registry[$]; \
         protected static SCALAR_TYPE _defined_values[$]; \
         protected static string _defined_names[$]; \
         protected static function int _register_enum(SCALAR_TYPE value, uvm_object_wrapper ow); \
-            _num_obj_registry_t r = _registry_lookup(value); \
+            _enum_registry_t r = _registry_lookup(value); \
             if (r.ow != null) begin \
                 $fatal(1, $sformatf("Cannot create an enum object for value 'b%0b because it already exists for `%0s`!", \
                     value, r.ow.get_type_name())); \
@@ -42,7 +42,7 @@
         endfunction \
         static function ENUM_ABC make(SCALAR_TYPE value, string uvm_object_name=""); \
             uvm_factory f = uvm_factory::get(); \
-            _num_obj_registry_t r = _registry_lookup(value); \
+            _enum_registry_t r = _registry_lookup(value); \
             string n = ((uvm_object_name == "") && (r.ow != null)) ? r.ow.get_type_name() : uvm_object_name; \
             uvm_object o = (r.ow == null) ? null : f.create_object_by_type(r.ow, , n); \
             if (o == null) return _make_unimplemented_value_enum(value); \
@@ -60,8 +60,8 @@
             _make_unimplemented_value_enum = unimplemented_``ENUM_NAME``::type_id::create({"unimplemented_", `"ENUM_NAME`"}); \
             _make_unimplemented_value_enum.value = value; \
         endfunction \
-        protected static function _num_obj_registry_t _registry_lookup(SCALAR_TYPE value); \
-            _num_obj_registry_t q[$] = _registry.find_first() with (item.value === value); \
+        protected static function _enum_registry_t _registry_lookup(SCALAR_TYPE value); \
+            _enum_registry_t q[$] = _registry.find_first() with (item.value === value); \
             foreach (q[i]) return q[i]; \
             _registry_lookup.ow = null; \
         endfunction
@@ -77,7 +77,7 @@
             return _defined_names; \
         endfunction \
         static function string name_lookup(SCALAR_TYPE value); \
-            _num_obj_registry_t rq[$] = _registry.find_first() with (item.value === value); \
+            _enum_registry_t rq[$] = _registry.find_first() with (item.value === value); \
             foreach (rq[i]) begin \
                 uvm_factory f = uvm_factory::get(); \
                 uvm_object_wrapper ow = f.find_override_by_type(rq[i].ow, ""); \
