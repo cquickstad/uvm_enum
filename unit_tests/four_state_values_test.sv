@@ -21,7 +21,7 @@ package four_state_pkg;
 
     `UVM_ENUM_OBJ_DECL(four_state, logic, ,
         function void post_randomize();
-            value = _DEFINED_VALUES[$urandom_range(_DEFINED_VALUES.size() - 1, 0)];
+            value = _defined_values[$urandom_range(_defined_values.size() - 1, 0)];
             object = ENUM_OBJ_TYPE::make(value);
         endfunction
     )
@@ -39,6 +39,13 @@ endpackage
     f.set(1'b1); `ASSERT_STR_EQ(f.name(), "one")
     f.set(1'bX); `ASSERT_STR_EQ(f.name(), "ex")
     f.set(1'bZ); `ASSERT_STR_EQ(f.name(), "zee")
+`END_RUN_PHASE_TEST
+
+`RUN_PHASE_TEST(four_state_name_lookup_test)
+    `ASSERT_STR_EQ(four_state_pkg::four_state_enum::name_lookup(1'b0), "zero")
+    `ASSERT_STR_EQ(four_state_pkg::four_state_enum::name_lookup(1'b1), "one")
+    `ASSERT_STR_EQ(four_state_pkg::four_state_enum::name_lookup(1'bX), "ex")
+    `ASSERT_STR_EQ(four_state_pkg::four_state_enum::name_lookup(1'bZ), "zee")
 `END_RUN_PHASE_TEST
 
 `RUN_PHASE_TEST(randomize_four_state_test)
@@ -89,13 +96,13 @@ endpackage
     uvm_pkg::uvm_comparer p = uvm_pkg::uvm_comparer::init();
     p.show_max = 0; // Turn off that aggravating 'reporter [MISCMP] Miscompare ...' message from UVM.
 
-    `ASSERT_FALSE(four_state_pkg::ex::INSIDE(set))
-    `ASSERT_TRUE(four_state_pkg::zee::INSIDE(set))
-    `ASSERT_TRUE(four_state_pkg::one::INSIDE(set))
+    `ASSERT_FALSE(four_state_pkg::ex::inside_objects(set))
+    `ASSERT_TRUE(four_state_pkg::zee::inside_objects(set))
+    `ASSERT_TRUE(four_state_pkg::one::inside_objects(set))
 
-    `ASSERT_FALSE(four_state_pkg::ex::INSIDE_VALUES(values_set))
-    `ASSERT_TRUE(four_state_pkg::zee::INSIDE_VALUES(values_set))
-    `ASSERT_TRUE(four_state_pkg::one::INSIDE_VALUES(values_set))
+    `ASSERT_FALSE(four_state_pkg::ex::inside_values(values_set))
+    `ASSERT_TRUE(four_state_pkg::zee::inside_values(values_set))
+    `ASSERT_TRUE(four_state_pkg::one::inside_values(values_set))
 
     e = four_state_pkg::ex::type_id::create("e", this);
     `ASSERT_FALSE(e.is_inside(set))

@@ -26,12 +26,12 @@ package color_pkg;
 
     // This declares the following class for the color enumeration:
     //      class red extends color_enum;
-    // A static VALUE member is declared and set to 0
+    // A static value member is declared and set to 0
     `UVM_ENUM_OBJ_VALUE_DECL(color, red)
 
     // This declares the following class for the color enumeration:
     //      class green extends color_enum;
-    // A static VALUE member is declared and set to 1
+    // A static value member is declared and set to 1
     `UVM_ENUM_OBJ_VALUE_DECL(color, green)
 
     `UVM_ENUM_OBJ_VALUE_DECL(color, blue)
@@ -42,7 +42,7 @@ package color_pkg;
     //
     // This declares the following class:
     //      class crimson extends red;
-    // The static VALUE member for red is retained with its value.
+    // The static value member for red is retained with its value.
     `UVM_ENUM_OBJ_VALUE_OVERRIDE(red, crimson)
 endpackage
 
@@ -61,7 +61,7 @@ endpackage
 `END_RUN_PHASE_TEST
 
 
-`RUN_PHASE_TEST(color_max_min_value_test)
+`RUN_PHASE_TEST(color_max_min_value_tzest)
     color_pkg::color_enum max, min;
     // Knowing the largest and smallest values might have general usefulness.
     `ASSERT_EQ(color_pkg::color_enum::get_max_value(), 3)
@@ -73,38 +73,46 @@ endpackage
 `END_RUN_PHASE_TEST
 
 
+`RUN_PHASE_TEST(color_name_lookup_test)
+    `ASSERT_STR_EQ(color_pkg::color_enum::name_lookup(color_pkg::red::value()), "red")
+    `ASSERT_STR_EQ(color_pkg::color_enum::name_lookup(color_pkg::green::value()), "green")
+    `ASSERT_STR_EQ(color_pkg::color_enum::name_lookup(color_pkg::blue::value()), "blue")
+    `ASSERT_STR_EQ(color_pkg::color_enum::name_lookup(color_pkg::color_enum::get_next_unused_value()), "unimplemented_color")
+`END_RUN_PHASE_TEST
+
+
 
 `RUN_PHASE_TEST(random_color_test)
     int color_count[int];
     color_pkg::color c; // `color` is the wrapper around `color_enum` that allows for .randomize() to select the type
 
-    color_count[color_pkg::red::VALUE()] = 0;
-    color_count[color_pkg::green::VALUE()] = 0;
-    color_count[color_pkg::blue::VALUE()] = 0;
-    color_count[color_pkg::yellow::VALUE()] = 0;
+    color_count[color_pkg::red::value()] = 0;
+    color_count[color_pkg::green::value()] = 0;
+    color_count[color_pkg::blue::value()] = 0;
+    color_count[color_pkg::yellow::value()] = 0;
 
     c = color_pkg::color::type_id::create("c", this);
     repeat (100) begin
-        `ASSERT_TRUE(c.randomize() with {c.value != color_pkg::yellow::VALUE();})
-        `ASSERT_NE(c.get_value(), color_pkg::yellow::VALUE())
+        `ASSERT_TRUE(c.randomize() with {c.value != color_pkg::yellow::value();})
+        `ASSERT_NE(c.get_value(), color_pkg::yellow::value())
         color_count[c.get_value()] = color_count[c.get_value()] + 1;
     end
 
-    `ASSERT_GT(color_count[color_pkg::red::VALUE()], 0);
-    `ASSERT_GT(color_count[color_pkg::green::VALUE()], 0);
-    `ASSERT_GT(color_count[color_pkg::blue::VALUE()], 0);
+    `ASSERT_GT(color_count[color_pkg::red::value()], 0);
+    `ASSERT_GT(color_count[color_pkg::green::value()], 0);
+    `ASSERT_GT(color_count[color_pkg::blue::value()], 0);
 
-    `ASSERT_EQ(color_count[color_pkg::yellow::VALUE()], 0);
+    `ASSERT_EQ(color_count[color_pkg::yellow::value()], 0);
 `END_RUN_PHASE_TEST
 
 
 `RUN_PHASE_TEST(set_color_test)
     color_pkg::color c = color_pkg::color::type_id::create("c", this);
-    c.set(color_pkg::red::VALUE());
-    `ASSERT_EQ(c.get_value(), color_pkg::red::VALUE())
+    c.set(color_pkg::red::value());
+    `ASSERT_EQ(c.get_value(), color_pkg::red::value())
     `ASSERT_STR_EQ(c.name(), "red")
-    c.set(color_pkg::yellow::VALUE());
-    `ASSERT_EQ(c.get_value(), color_pkg::yellow::VALUE())
+    c.set(color_pkg::yellow::value());
+    `ASSERT_EQ(c.get_value(), color_pkg::yellow::value())
     `ASSERT_STR_EQ(c.name(), "yellow")
 `END_RUN_PHASE_TEST
 
@@ -112,13 +120,13 @@ endpackage
 `RUN_PHASE_TEST(standard_methods_color_test)
     color_pkg::color c = color_pkg::color::type_id::create("c", this);
 
-    c.last(); `ASSERT_EQ(c.get_value(), color_pkg::yellow::VALUE())
-    c.first(); `ASSERT_EQ(c.get_value(), color_pkg::red::VALUE())
+    c.last(); `ASSERT_EQ(c.get_value(), color_pkg::yellow::value())
+    c.first(); `ASSERT_EQ(c.get_value(), color_pkg::red::value())
 
-    c.next(); `ASSERT_EQ(c.get_value(), color_pkg::green::VALUE())
-    c.next(); `ASSERT_EQ(c.get_value(), color_pkg::blue::VALUE())
-    c.next(); `ASSERT_EQ(c.get_value(), color_pkg::yellow::VALUE())
-    c.next(); `ASSERT_EQ(c.get_value(), color_pkg::red::VALUE()) // Wrap
+    c.next(); `ASSERT_EQ(c.get_value(), color_pkg::green::value())
+    c.next(); `ASSERT_EQ(c.get_value(), color_pkg::blue::value())
+    c.next(); `ASSERT_EQ(c.get_value(), color_pkg::yellow::value())
+    c.next(); `ASSERT_EQ(c.get_value(), color_pkg::red::value()) // Wrap
     c.prev(); `ASSERT_STR_EQ(c.name(), "yellow") // Wrap
     c.prev(); `ASSERT_STR_EQ(c.name(), "blue")
     c.prev(); `ASSERT_STR_EQ(c.name(), "green")
@@ -136,11 +144,11 @@ endpackage
     color_pkg::color c = color_pkg::color::type_id::create("c", this);
 
     c.set_from_string("yellow");
-    `ASSERT_EQ(c.get_value(), color_pkg::yellow::VALUE())
+    `ASSERT_EQ(c.get_value(), color_pkg::yellow::value())
     `ASSERT_TRUE(c.is_valid())
 
     c.set_from_string("green");
-    `ASSERT_EQ(c.get_value(), color_pkg::green::VALUE())
+    `ASSERT_EQ(c.get_value(), color_pkg::green::value())
     `ASSERT_TRUE(c.is_valid())
 
     c.set_from_string("FOO BAR");
@@ -154,7 +162,7 @@ endpackage
     color_pkg::color_enum c;
 
     c = color_pkg::color_enum::make_from_name("blue");
-    `ASSERT_EQ(c.get_value(), color_pkg::blue::VALUE())
+    `ASSERT_EQ(c.get_value(), color_pkg::blue::value())
     `ASSERT_TRUE(c.is_valid())
 
     c = color_pkg::color_enum::make_from_name("FOO BAR");
@@ -173,7 +181,7 @@ endpackage
     set_type_override_by_type(color_pkg::red::get_type(), color_pkg::crimson::get_type());
 
     c = color_pkg::color::type_id::create("c", this);
-    c.set(color_pkg::red::VALUE());
+    c.set(color_pkg::red::value());
     `ASSERT_STR_EQ(c.name(), "crimson")
     c.set_from_string("red");
     `ASSERT_STR_EQ(c.name(), "crimson")
@@ -223,9 +231,9 @@ endpackage
     `ASSERT_FALSE(b.compare(c))
     `ASSERT_FALSE(c.compare(a))
 
-    x.set(color_pkg::green::VALUE());
-    y.set(color_pkg::green::VALUE());
-    z.set(color_pkg::blue::VALUE());
+    x.set(color_pkg::green::value());
+    y.set(color_pkg::green::value());
+    z.set(color_pkg::blue::value());
 
     `ASSERT_TRUE(x.compare(y))
     `ASSERT_TRUE(y.compare(x))
@@ -241,47 +249,47 @@ endpackage
     // Directly assigning value means the object is out of sync.
 
     c = color_pkg::color::type_id::create("c", this);
-    c.value = color_pkg::blue::VALUE();
+    c.value = color_pkg::blue::value();
     `EXPECT_FATAL_ID("ENUM_OBJECT_MISUSED")
     void'(c.get_value());
 
     c = color_pkg::color::type_id::create("c", this);
-    c.value = color_pkg::blue::VALUE();
+    c.value = color_pkg::blue::value();
     `EXPECT_FATAL_ID("ENUM_OBJECT_MISUSED")
     void'(c.get_enum_index());
 
     c = color_pkg::color::type_id::create("c", this);
-    c.value = color_pkg::blue::VALUE();
+    c.value = color_pkg::blue::value();
     `EXPECT_FATAL_ID("ENUM_OBJECT_MISUSED")
     void'(c.first());
 
     c = color_pkg::color::type_id::create("c", this);
-    c.value = color_pkg::blue::VALUE();
+    c.value = color_pkg::blue::value();
     `EXPECT_FATAL_ID("ENUM_OBJECT_MISUSED")
     void'(c.last());
 
     c = color_pkg::color::type_id::create("c", this);
-    c.value = color_pkg::blue::VALUE();
+    c.value = color_pkg::blue::value();
     `EXPECT_FATAL_ID("ENUM_OBJECT_MISUSED")
     c.next();
 
     c = color_pkg::color::type_id::create("c", this);
-    c.value = color_pkg::blue::VALUE();
+    c.value = color_pkg::blue::value();
     `EXPECT_FATAL_ID("ENUM_OBJECT_MISUSED")
     c.prev();
 
     c = color_pkg::color::type_id::create("c", this);
-    c.value = color_pkg::blue::VALUE();
+    c.value = color_pkg::blue::value();
     `EXPECT_FATAL_ID("ENUM_OBJECT_MISUSED")
     void'(c.num());
 
     c = color_pkg::color::type_id::create("c", this);
-    c.value = color_pkg::blue::VALUE();
+    c.value = color_pkg::blue::value();
     `EXPECT_FATAL_ID("ENUM_OBJECT_MISUSED")
     void'(c.name());
 
     c = color_pkg::color::type_id::create("c", this);
-    c.value = color_pkg::blue::VALUE();
+    c.value = color_pkg::blue::value();
     `EXPECT_FATAL_ID("ENUM_OBJECT_MISUSED")
     void'(c.get_enum());
 `END_RUN_PHASE_TEST
@@ -293,42 +301,42 @@ endpackage
     color_pkg::color g = color_pkg::color::type_id::create("g", this);
     color_pkg::color b = color_pkg::color::type_id::create("b", this);
     color_pkg::color rgb[] = {r, g, b};
-    int rgb_values[] = {color_pkg::red::VALUE(),
-                        color_pkg::green::VALUE(),
-                        color_pkg::blue::VALUE()};
+    int rgb_values[] = {color_pkg::red::value(),
+                        color_pkg::green::value(),
+                        color_pkg::blue::value()};
     uvm_pkg::uvm_comparer p = uvm_pkg::uvm_comparer::init();
     p.show_max = 0; // Turn off that aggravating 'reporter [MISCMP] Miscompare ...' message from UVM.
 
-    r.set(color_pkg::red::VALUE());
-    g.set(color_pkg::green::VALUE());
-    b.set(color_pkg::blue::VALUE());
+    r.set(color_pkg::red::value());
+    g.set(color_pkg::green::value());
+    b.set(color_pkg::blue::value());
 
-    c.set(color_pkg::red::VALUE());
+    c.set(color_pkg::red::value());
     `ASSERT_TRUE(c.is_inside(rgb))
     `ASSERT_TRUE(c.is_inside({r, g, b})) // This works too
 
-    c.set(color_pkg::green::VALUE());
+    c.set(color_pkg::green::value());
     `ASSERT_TRUE(c.is_inside(rgb))
 
-    c.set(color_pkg::blue::VALUE());
+    c.set(color_pkg::blue::value());
     `ASSERT_TRUE(c.is_inside(rgb))
 
-    c.set(color_pkg::yellow::VALUE());
+    c.set(color_pkg::yellow::value());
     `ASSERT_FALSE(c.is_inside(rgb))
 
-    c.set(color_pkg::red::VALUE());
+    c.set(color_pkg::red::value());
     `ASSERT_TRUE(c.is_inside_values(rgb_values))
-    `ASSERT_TRUE(c.is_inside_values({color_pkg::red::VALUE(), // This works too
-                                    color_pkg::green::VALUE(),
-                                    color_pkg::blue::VALUE()}))
+    `ASSERT_TRUE(c.is_inside_values({color_pkg::red::value(), // This works too
+                                    color_pkg::green::value(),
+                                    color_pkg::blue::value()}))
 
-    c.set(color_pkg::green::VALUE());
-    `ASSERT_TRUE(c.is_inside_values(rgb_values))
-
-    c.set(color_pkg::blue::VALUE());
+    c.set(color_pkg::green::value());
     `ASSERT_TRUE(c.is_inside_values(rgb_values))
 
-    c.set(color_pkg::yellow::VALUE());
+    c.set(color_pkg::blue::value());
+    `ASSERT_TRUE(c.is_inside_values(rgb_values))
+
+    c.set(color_pkg::yellow::value());
     `ASSERT_FALSE(c.is_inside_values(rgb_values))
 `END_RUN_PHASE_TEST
 
@@ -339,21 +347,21 @@ endpackage
     color_pkg::color_enum g = color_pkg::green::type_id::create("g", this);
     color_pkg::color_enum b = color_pkg::blue::type_id::create("b", this);
     color_pkg::color_enum rgb[] = {r, g, b};
-    int rgb_values[] = {color_pkg::red::VALUE(),
-                        color_pkg::green::VALUE(),
-                        color_pkg::blue::VALUE()};
+    int rgb_values[] = {color_pkg::red::value(),
+                        color_pkg::green::value(),
+                        color_pkg::blue::value()};
     uvm_pkg::uvm_comparer p = uvm_pkg::uvm_comparer::init();
     p.show_max = 0; // Turn off that aggravating 'reporter [MISCMP] Miscompare ...' message from UVM.
 
-    `ASSERT_TRUE(color_pkg::red::INSIDE(rgb))
-    `ASSERT_TRUE(color_pkg::green::INSIDE(rgb))
-    `ASSERT_TRUE(color_pkg::blue::INSIDE(rgb))
-    `ASSERT_FALSE(color_pkg::yellow::INSIDE(rgb))
+    `ASSERT_TRUE(color_pkg::red::inside_objects(rgb))
+    `ASSERT_TRUE(color_pkg::green::inside_objects(rgb))
+    `ASSERT_TRUE(color_pkg::blue::inside_objects(rgb))
+    `ASSERT_FALSE(color_pkg::yellow::inside_objects(rgb))
 
-    `ASSERT_TRUE(color_pkg::red::INSIDE_VALUES(rgb_values))
-    `ASSERT_TRUE(color_pkg::green::INSIDE_VALUES(rgb_values))
-    `ASSERT_TRUE(color_pkg::blue::INSIDE_VALUES(rgb_values))
-    `ASSERT_FALSE(color_pkg::yellow::INSIDE_VALUES(rgb_values))
+    `ASSERT_TRUE(color_pkg::red::inside_values(rgb_values))
+    `ASSERT_TRUE(color_pkg::green::inside_values(rgb_values))
+    `ASSERT_TRUE(color_pkg::blue::inside_values(rgb_values))
+    `ASSERT_FALSE(color_pkg::yellow::inside_values(rgb_values))
 
     c = color_pkg::red::type_id::create("c", this);
     `ASSERT_TRUE(c.is_inside(rgb))
@@ -370,9 +378,9 @@ endpackage
 
     c = color_pkg::red::type_id::create("c", this);
     `ASSERT_TRUE(c.is_inside_values(rgb_values))
-    `ASSERT_TRUE(c.is_inside_values({color_pkg::red::VALUE(),
-                                     color_pkg::green::VALUE(),
-                                     color_pkg::blue::VALUE()}))
+    `ASSERT_TRUE(c.is_inside_values({color_pkg::red::value(),
+                                     color_pkg::green::value(),
+                                     color_pkg::blue::value()}))
     c = color_pkg::green::type_id::create("c", this);
     `ASSERT_TRUE(c.is_inside_values(rgb_values))
     c = color_pkg::blue::type_id::create("c", this);

@@ -19,8 +19,8 @@ endpackage
 
 `RUN_PHASE_TEST(test_that_the_sets_are_empty)
     empty_enum_pkg::empty_type_enum e = empty_enum_pkg::empty_type_enum::make(0);
-    `ASSERT_AP_EQ(empty_enum_pkg::empty_type_enum::DEFINED_VALUES(), "'{}")
-    `ASSERT_AP_EQ(empty_enum_pkg::empty_type_enum::DEFINED_NAMES(), "'{}")
+    `ASSERT_AP_EQ(empty_enum_pkg::empty_type_enum::defined_values(), "'{}")
+    `ASSERT_AP_EQ(empty_enum_pkg::empty_type_enum::defined_names(), "'{}")
     `ASSERT_AP_EQ(e.get_all_values(), "'{}")
     `ASSERT_AP_EQ(e.get_all_names(), "'{}")
     `ASSERT_STR_EQ(empty_enum_pkg::empty_type_enum::get_shortest_name(), "")

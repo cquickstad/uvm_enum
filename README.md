@@ -87,7 +87,7 @@ The line `` `UVM_ENUM_OBJ_DECL(color)`` will declare the following classes:
 - `class color extends uvm_rand_enum#(int, color_enum);` - Implements a randomization wrapper class containing both the scalar value (as `rand`) and a handle to the matching instance of `color_enum`. This class is needed because SystemVerilog's randomization engine only works on built-in types and it cannot create or choose a class instance, nor can constraints be written to do so.  By the way, never set this object's value member directly (it was left public only for random constraint access compatibility). Only change the value member using `.randomize()` or `.set()`.
 
 The line `` `UVM_ENUM_OBJ_VALUE_DECL(color, blue)`` will declare the following class:
-- `class blue extends color_enum;` - Represents the `blue` enumeration and has a scalar value of `2` that can be retrieved with the `get_value()` method or the `blue::VALUE()` static method.
+- `class blue extends color_enum;` - Represents the `blue` enumeration and has a scalar value of `2` that can be retrieved with the `get_value()` method or the `blue::value()` static method.
 
 The `color_enum` abstract base class and `red`, `green`, and `blue` enumeration implementation classes may be used directly. However, where randomization is required, the `color` container class should be used.
 
@@ -101,7 +101,7 @@ bit success = std::randomize(c) with {c != green;};
 write
 ```
 color c = color::type_id::create("c", this);
-bit success = c.randomize() with {value != green::VALUE();};
+bit success = c.randomize() with {value != green::value();};
 ```
 ---
 ### Randomization/Constraints in an Object
@@ -119,7 +119,7 @@ write
 class item extends uvm_object;
     ...
     rand color c;
-    constraint color_c {c.value != green::VALUE();}
+    constraint color_c {c.value != green::value();}
     ...
     function new(string name="item");
         super.new(name);
@@ -141,7 +141,7 @@ int i = int'(c);
 write
 ```
 color c = color::type_id::create("c");
-c.set(blue::VALUE());
+c.set(blue::value());
 int i = c.get_value();
 ```
 or
@@ -151,7 +151,7 @@ int i = b.get_value();
 ```
 or simply
 ```
-int i = blue::VALUE();
+int i = blue::value();
 ```
 ---
 ### Converting a Scalar to the Enumeration
@@ -207,18 +207,18 @@ color a = color::type_id::create("a");
 color b = color::type_id::create("b");
 color c = color::type_id::create("c");
 
-a.set(green::VALUE());
-b.set(green::VALUE());
-c.set(blue::VALUE());
+a.set(green::value());
+b.set(green::value());
+c.set(blue::value());
 
 assert(a.compare(b));
 assert(!a.compare(c));
 ```
 or
 ```
-color_enum a = color_enum::make(green::VALUE(), "a");
-color_enum b = color_enum::make(green::VALUE(), "b");
-color_enum c = color_enum::make(blue::VALUE(), "c");
+color_enum a = color_enum::make(green::value(), "a");
+color_enum b = color_enum::make(green::value(), "b");
+color_enum c = color_enum::make(blue::value(), "c");
 
 assert(a.compare(b));
 assert(!a.compare(c));
@@ -239,35 +239,35 @@ color a = color::type_id::create("a");
 color b = color::type_id::create("b");
 color c = color::type_id::create("c");
 
-b.set(green::VALUE());
-c.set(blue::VALUE());
+b.set(green::value());
+c.set(blue::value());
 
-a.set(green::VALUE());
+a.set(green::value());
 assert(a.is_inside({b, c}));
 
-a.set(red::VALUE());
+a.set(red::value());
 assert(!a.is_inside({b, c}));
 ```
 or
 ```
 color a = color::type_id::create("a");
 
-a.set(green::VALUE());
-assert(a.is_inside_values({green::VALUE(), blue::VALUE()}));
+a.set(green::value());
+assert(a.is_inside_values({green::value(), blue::value()}));
 
-a.set(red::VALUE());
-assert(!a.is_inside_values({green::VALUE(), blue::VALUE()}));
+a.set(red::value());
+assert(!a.is_inside_values({green::value(), blue::value()}));
 ```
 or
 ```
-assert(green::INSIDE({green::type_id::create(), blue::type_id::create()}))
-assert(green::INSIDE_VALUES({green::VALUE(), blue::VALUE()}))
+assert(green::inside_objects({green::type_id::create(), blue::type_id::create()}))
+assert(green::inside_values({green::value(), blue::value()}))
 ```
 or
 ```
-color_enum a = color_enum::make(green::VALUE(), "a");
+color_enum a = color_enum::make(green::value(), "a");
 assert(a.is_inside({green::type_id::create(), blue::type_id::create()}))
-assert(a.is_inside_values({green::VALUE(), blue::VALUE()}))
+assert(a.is_inside_values({green::value(), blue::value()}))
 ```
 ---
 ### Built-In Enum Methods
@@ -280,7 +280,7 @@ $display("%0s is after green", c.name());
 write
 ```
 color c = color::type_id::create("c");
-c.set(green::VALUE());
+c.set(green::value());
 c.next();
 $display("%0s is after green", c.name());
 ```
@@ -336,7 +336,8 @@ endfunction
 ```
 write
 ```
-`UVM_ENUM_OBJ_DECL(animal, logic [3:0],
+typedef logic [3:0] animal_scalar_t;
+`UVM_ENUM_OBJ_DECL(animal, animal_scalar_t,
     pure virtual function int get_num_legs();
     pure virtual function bit can_ride();
     ,
@@ -437,4 +438,24 @@ Even existing enum objects can be overridden with polymorphism and the UVM Facto
 
     set_type_override_by_type(dog::get_type(),
                               maimed_dog::get_type());
+```
+---
+### Indexing Into an Associative Array
+Instead of
+```
+int aa[animal];
+aa[dog] = 123;
+assert(aa.exists(dog));
+foreach (aa[a]) begin
+    $display("Animal %0s has value %0d", a.name(), aa[a]);
+end
+```
+write
+```
+int aa[animal_scalar_t];
+aa[animal::dog::value()] = 123;
+assert(aa.exists(animal::dog::value()));
+foreach (aa[i]) begin
+    $display("Animal %0s has value %0d", animal_enum::name_lookup(i), aa[i]);
+end
 ```
