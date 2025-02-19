@@ -35,7 +35,7 @@
             _registry.push_back(r); \
             _register_enum = _defined_values.size(); \
             _defined_values.push_back(value); \
-            _defined_names.push_back(ow.get_type_name()) ;\
+            _defined_names.push_back(ow.get_type_name()); \
         endfunction \
         protected static function bit _append_name(string name); \
             _defined_names.push_back(name); \
