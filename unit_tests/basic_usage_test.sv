@@ -73,6 +73,20 @@ endpackage
 `END_RUN_PHASE_TEST
 
 
+`RUN_PHASE_TEST(color_static_get_test)
+    `ASSERT_STR_EQ(color_pkg::red::get_enum_name(), "red")
+    `ASSERT_STR_EQ(color_pkg::green::get_enum_name(), "green")
+    `ASSERT_STR_EQ(color_pkg::blue::get_enum_name(), "blue")
+    `ASSERT_STR_EQ(color_pkg::yellow::get_enum_name(), "yellow")
+    `ASSERT_STR_EQ(color_pkg::crimson::get_enum_name(), "crimson")
+    `ASSERT_EQ(color_pkg::red::value(), 0)
+    `ASSERT_EQ(color_pkg::green::value(), 1)
+    `ASSERT_EQ(color_pkg::blue::value(), 2)
+    `ASSERT_EQ(color_pkg::yellow::value(), 3)
+    `ASSERT_EQ(color_pkg::crimson::value(), 0)
+`END_RUN_PHASE_TEST
+
+
 `RUN_PHASE_TEST(color_name_lookup_test)
     `ASSERT_STR_EQ(color_pkg::color_enum::name_lookup(color_pkg::red::value()), "red")
     `ASSERT_STR_EQ(color_pkg::color_enum::name_lookup(color_pkg::green::value()), "green")

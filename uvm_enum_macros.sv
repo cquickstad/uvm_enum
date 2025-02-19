@@ -187,6 +187,9 @@
         static function SCALAR_TYPE value(); \
             return _value; \
         endfunction \
+        static function string get_enum_name(); \
+            return `"ENUM_VALUE_NAME`"; \
+        endfunction \
         static function int defined_value_index(); \
             return _defined_value_index; \
         endfunction \
@@ -221,6 +224,9 @@
 `define UVM_ENUM_OBJ_VALUE_OVERRIDE(PARENT_ENUM_VALUE_NAME, CHILD_ENUM_VALUE_NAME, ENUM_CLASS_BODY=) \
     class CHILD_ENUM_VALUE_NAME extends PARENT_ENUM_VALUE_NAME; \
         protected static bit __only_side_effect_needed = _append_name(`"CHILD_ENUM_VALUE_NAME`"); \
+        static function string get_enum_name(); \
+            return `"CHILD_ENUM_VALUE_NAME`"; \
+        endfunction \
         `uvm_object_utils(CHILD_ENUM_VALUE_NAME) \
         function new(string name=`"CHILD_ENUM_VALUE_NAME`"); \
             super.new(name); \
