@@ -101,6 +101,11 @@ class uvm_rand_enum#(type SCALAR_TYPE=bit,
         return 0;
     endfunction
 
+    virtual function bit is_inside_value_range(SCALAR_TYPE lower_bound, SCALAR_TYPE upper_bound);
+        check_value_object_sync();
+        return (value >= lower_bound) && (value <= upper_bound);
+    endfunction
+
     // The object is not the unimplemented_thing null object.
     virtual function bit is_valid();
         check_value_object_sync();

@@ -67,6 +67,10 @@ virtual class uvm_enum#(type SCALAR_TYPE=int, type ENUM_ABC=uvm_object) extends 
         return 0;
     endfunction
 
+    virtual function bit is_inside_value_range(SCALAR_TYPE lower_bound, SCALAR_TYPE upper_bound);
+        return (get_value() >= lower_bound && get_value() <= upper_bound);
+    endfunction
+
 
 
     // The following methods mimic SystemVerilog's built-in enum methods of the same

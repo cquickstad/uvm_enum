@@ -343,15 +343,19 @@ endpackage
     `ASSERT_TRUE(c.is_inside_values({color_pkg::red::value(), // This works too
                                     color_pkg::green::value(),
                                     color_pkg::blue::value()}))
+    `ASSERT_TRUE(c.is_inside_value_range(color_pkg::red::value(), color_pkg::blue::value()))
 
     c.set(color_pkg::green::value());
     `ASSERT_TRUE(c.is_inside_values(rgb_values))
+    `ASSERT_TRUE(c.is_inside_value_range(color_pkg::red::value(), color_pkg::blue::value()))
 
     c.set(color_pkg::blue::value());
     `ASSERT_TRUE(c.is_inside_values(rgb_values))
+    `ASSERT_TRUE(c.is_inside_value_range(color_pkg::red::value(), color_pkg::blue::value()))
 
     c.set(color_pkg::yellow::value());
     `ASSERT_FALSE(c.is_inside_values(rgb_values))
+    `ASSERT_FALSE(c.is_inside_value_range(color_pkg::red::value(), color_pkg::blue::value()))
 `END_RUN_PHASE_TEST
 
 
@@ -377,6 +381,11 @@ endpackage
     `ASSERT_TRUE(color_pkg::blue::inside_values(rgb_values))
     `ASSERT_FALSE(color_pkg::yellow::inside_values(rgb_values))
 
+    `ASSERT_TRUE(color_pkg::red::inside_value_range(color_pkg::red::value(), color_pkg::blue::value()))
+    `ASSERT_TRUE(color_pkg::green::inside_value_range(color_pkg::red::value(), color_pkg::blue::value()))
+    `ASSERT_TRUE(color_pkg::blue::inside_value_range(color_pkg::red::value(), color_pkg::blue::value()))
+    `ASSERT_FALSE(color_pkg::yellow::inside_value_range(color_pkg::red::value(), color_pkg::blue::value()))
+
     c = color_pkg::red::type_id::create("c", this);
     `ASSERT_TRUE(c.is_inside(rgb))
     `ASSERT_TRUE(c.is_inside({color_pkg::red::type_id::create(), // This works too
@@ -395,10 +404,14 @@ endpackage
     `ASSERT_TRUE(c.is_inside_values({color_pkg::red::value(),
                                      color_pkg::green::value(),
                                      color_pkg::blue::value()}))
+    `ASSERT_TRUE(c.is_inside_value_range(color_pkg::red::value(), color_pkg::blue::value()))
     c = color_pkg::green::type_id::create("c", this);
     `ASSERT_TRUE(c.is_inside_values(rgb_values))
+    `ASSERT_TRUE(c.is_inside_value_range(color_pkg::red::value(), color_pkg::blue::value()))
     c = color_pkg::blue::type_id::create("c", this);
     `ASSERT_TRUE(c.is_inside_values(rgb_values))
+    `ASSERT_TRUE(c.is_inside_value_range(color_pkg::red::value(), color_pkg::blue::value()))
     c = color_pkg::yellow::type_id::create("c", this);
     `ASSERT_FALSE(c.is_inside_values(rgb_values))
+    `ASSERT_FALSE(c.is_inside_value_range(color_pkg::red::value(), color_pkg::blue::value()))
 `END_RUN_PHASE_TEST

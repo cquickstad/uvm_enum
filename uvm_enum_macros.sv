@@ -203,6 +203,9 @@
             foreach (q[i]) return 1; \
             return 0; \
         endfunction \
+        static function bit inside_value_range(SCALAR_TYPE lower_bound, SCALAR_TYPE upper_bound); \
+            return (lower_bound <= _value) && (_value <= upper_bound); \
+        endfunction \
         function new(string name=`"ENUM_VALUE_NAME`"); \
             super.new(name); \
         endfunction \

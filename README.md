@@ -270,6 +270,28 @@ assert(a.is_inside({green::type_id::create(), blue::type_id::create()}))
 assert(a.is_inside_values({green::value(), blue::value()}))
 ```
 ---
+### Testing Range
+Instead of
+```
+color a = green;
+assert(a inside {[red:blue]});
+```
+write
+```
+color a = color::type_id::create("a");
+a.set(green::value());
+assert(a.is_inside_value_range(red::value(), blue::value()));
+```
+or
+```
+color_enum a = color_enum::make(green::value(), "a");
+assert(a.is_inside_value_range(red::value(), blue::value()));
+```
+or
+```
+assert(green::inside_value_range(red::value(), blue::value()));
+```
+---
 ### Built-In Enum Methods
 Instead of
 ```
