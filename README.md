@@ -481,3 +481,64 @@ foreach (aa[i]) begin
     $display("Animal %0s has value %0d", animal_enum::name_lookup(i), aa[i]);
 end
 ```
+
+---
+### Complex Constraints
+You may find that you want to write a constraint that references the methods of the enumerated type object.  Unfortunately the SystemVerilog LRM has the following restrictions:
+* "Functions that appear in constraint expressions shall be automatic (or preserve no state information) and have no side effects."
+* "Function calls in passive constraints are executed an unspecified number of times (at least once) in an unspecified order."
+
+Therefore, you cannot write a constraint that creates the correct child type of the enumerated object, then references the methods of the enumerated type object.
+For example, you might want to write a constraint like this:
+```
+class item extends uvm_object;
+    rand animal a;
+    rand int payload;
+    constraint c {
+        // ERROR: a.object is not created with the correct
+        //        type until post_randomize(). The methods
+        //        simply don't work until then.
+        if (a.can_ride()) {
+            payload == a.get_num_legs() * 100;
+        } else {
+            payload == 5;
+        }
+    }
+    `uvm_object_utils(item)
+    function new(string name="item");
+        super.new(name);
+    endfunction
+endclass
+```
+Instead, because of the quoted SystemVerilog limitations, you must write write helper functions that have no side effects:
+```
+class item extends uvm_object;
+    rand animal a;
+    rand int payload;
+    constraint c {
+        // ERROR: a.object is not created with the correct
+        //        type until post_randomize(). The methods
+        //        simply don't work until then.
+        if (can_ride_rand_helper(a.value)) {
+            payload == get_num_legs_rand_helper(a.value) * 100;
+        } else {
+            payload == 5;
+        }
+    }
+    `uvm_object_utils(item)
+    function new(string name="item");
+        super.new(name);
+    endfunction
+    virtual function int can_ride_rand_helper(animal_scalar_t value);
+        // Local variable preserves no state information
+        // and has no side effects.
+        const animal_enum tmp = animal_enum::make(value);
+        return tmp.can_ride();
+    endfunction
+    virtual function int get_num_legs_rand_helper(animal_scalar_t value);
+        const animal_enum tmp = animal_enum::make(value);
+        return tmp.get_num_legs();
+    endfunction
+endclass
+```
+This is annoying and not performant, but it works around a major and obvious limitation of SystemVerilog: randomization does not support creating objects. It's almost like SystemVerilog is trying to prevent you from doing the right thing and force you into primitive obsessions.
